@@ -1,0 +1,1 @@
+mongodb+srv://noufalvmkd:<db_password>@foodapp.o4l7q.mongodb.net/?retryWrites=true&w=majority&appName=foodApp
