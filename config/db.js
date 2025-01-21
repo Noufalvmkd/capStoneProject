@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
+require('dotenv').config()
 const connectDB = async()=>{
     try{
-        await mongoose.connect('mongodb+srv://noufalvmkd:j6Ub97lmnpVstJQK@foodapp.o4l7q.mongodb.net/?retryWrites=true&w=majority&appName=foodApp')
+        await mongoose.connect(process.env.MONGO_URI)
  console.log( "datbase connected")
     }
     catch(error){
