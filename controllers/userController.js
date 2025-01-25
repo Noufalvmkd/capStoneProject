@@ -1,3 +1,5 @@
+import { User } from "../models/userModels";
+
 export const userSignup = async (req,res,next)=>{
     try {
         const {name,email,password ,mobile} =req.body;
