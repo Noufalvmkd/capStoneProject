@@ -1,5 +1,3 @@
-
-
 import express from "express";
 import { userSignup } from "../controllers/userController.js";
 import { userAuth } from "../middlewares/userAuth.js";
@@ -23,4 +21,4 @@ router.put('/logout',userAuth,userLogout)
 //change password
 //account deactivated
 
-export {router as userRouter} // reason for userRouter = can be more router , so for clarity
+export {router as sellerRouter} // reason for userRouter = can be more router , so for clarity

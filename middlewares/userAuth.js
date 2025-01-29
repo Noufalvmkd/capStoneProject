@@ -4,8 +4,8 @@ dotenv.config();
 
 export const userAuth = (req, res, next)=>{
     try {
-        const {token} = req.cookies;
-        console.log(req.cookies);
+        const token = req.cookies.token;
+        console.log(req.cookies.token);
 
 
         if(!token){
@@ -14,6 +14,7 @@ export const userAuth = (req, res, next)=>{
         console.log("Received Token:", token);
 
         const tokenVerified = jwt.verify(token, process.env.JWT_SECRET_KEY);
+        req.user = tokenVerified
     
         
 

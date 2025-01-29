@@ -25,7 +25,12 @@ export const userSignup = async (req,res,next)=>{
         await userData.save();
 console.log("hi")
         const token = gentoken(userData._id)
-        res.cookie("token",token);
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production', // HTTPS in production
+            sameSite: 'strict',
+            maxAge: 24 * 60 * 60 * 1000 // 1 day
+          });
         return res.json({data:userData,message:"user account created"})
     } catch (error) {
         return res.status(error.statusCode ||500).json({message:error.message || "internal server error"})
@@ -68,8 +73,21 @@ export const userProfile = async (req,res,next)=>{
     try {
         const userId =req.user.id;
 
-        const userData =await User.findById(userId).select(-password)
+        const userData = await User.findById(userId).select('-password');
         return res.json({data:userData , message:"user profile fetched"});
+    } catch (error) {
+        return res.status(error.statusCode ||500).json({message:error.message || "internal server error"})
+    }
+}
+
+//loggin out
+
+export const userLogout = async (req,res,next)=>{
+    try {
+        res.clearCookie('token')
+
+        
+        return res.json({message:"user loged out"});
     } catch (error) {
         return res.status(error.statusCode ||500).json({message:error.message || "internal server error"})
     }
