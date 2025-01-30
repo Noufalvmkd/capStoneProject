@@ -1,14 +1,14 @@
 import express from "express";
 
 import { userRouter  } from "./userRoutes.js";
-import { sellerRouter } from "./sellerRouter.js";
+import { adminRouter } from "./adminRouter.js";
 
 const router = express.Router();
 
 
 
 router.use('/user',userRouter);
-router.use('/seller', sellerRouter);
+router.use('/admin', adminRouter);
 
 //other routes
 

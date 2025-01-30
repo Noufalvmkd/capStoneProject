@@ -1,68 +1,71 @@
 
-import { User } from "../models/userModel.js";
+import { Admin } from "../models/adminModel.js";
 import bcrypt from "bcrypt";
 import { gentoken } from "../utils/token.js";
 
 
 
-export const userSignup = async (req,res,next)=>{
+export const adminSignup = async (req,res,next)=>{
     try {
         console.log("hitted")
         const {name, email, password, mobile} = req.body;
         if(!name || !email || !password ){
             return res.status(400).json({message:"all field required"})
         }
-        const isUserExist = await User.findOne({email})
+        const isAdminExist = await Admin.findOne({email})
 
-        if(isUserExist){
-            return res.status(400).json({message:"user exist"})
+        if(isAdminExist){
+            return res.status(400).json({message:"Admin exist"})
         }
         const saltRounds =10;
 
         const hashedpswrd = bcrypt.hashSync(password, saltRounds);
 
-        const userData = new User({name,email,password:hashedpswrd ,mobile})
-        await userData.save();
-console.log("hi")
-        const token = gentoken(userData._id)
-        console.log(token ,"token new")
+        const AdminData = new Admin({name,email,password:hashedpswrd ,mobile})
+        await AdminData.save();
+console.log(AdminData)
+        const token = gentoken(AdminData._id)
         res.cookie("token", token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production', // HTTPS in production
             sameSite: 'strict',
             maxAge: 24 * 60 * 60 * 1000 // 1 day
           });
-        return res.json({data:userData,message:"user account created"})
+
+          const AdminId =req.Admin.id;
+
+        const AdminDataId = await Admin.findById(AdminId).select('-password');
+        return res.json({data:AdminDataId,message:"Admin account created"})
     } catch (error) {
         return res.status(error.statusCode ||500).json({message:error.message || "internal server error"})
     }
 }
 
-//user login
+//Admin login
 
-export const userLogin = async (req,res,next)=>{
+export const adminLogin = async (req,res,next)=>{
     try {
         console.log("hitted")
         const {email, password} = req.body;
         if(!email || !password ){
             return res.status(400).json({message:"all field required"})
         }
-        const UserExist = await User.findOne({email})
+        const AdminExist = await Admin.findOne({email})
 
-        if(!UserExist){
-            return res.status(400).json({message:"user does not exist"})
+        if(!AdminExist){
+            return res.status(400).json({message:"Admin does not exist"})
         }
-    const passwordMatch = bcrypt.compareSync(password, UserExist.password)
+    const passwordMatch = bcrypt.compareSync(password, AdminExist.password)
 
-        // const hashedpswrd = bcrypt.hashSync(password, UserExist.password);
+        // const hashedpswrd = bcrypt.hashSync(password, AdminExist.password);
 
         if(!passwordMatch){
-            return res.status(401).json({message: "user not authenticated"})
+            return res.status(401).json({message: "Admin not authenticated"})
         }
 
-        const token = gentoken(UserExist._id)
+        const token = gentoken(AdminExist._id)
         res.cookie("token",token);
-        return res.json({data:UserExist,message:"user login success"})
+        return res.json({data:AdminExist,message:"Admin login success"})
     } catch (error) {
         return res.status(error.statusCode ||500).json({message:error.message || "internal server error"})
     }
@@ -70,12 +73,12 @@ export const userLogin = async (req,res,next)=>{
 
 //fetching profile data
 
-export const userProfile = async (req,res,next)=>{
+export const adminProfile = async (req,res,next)=>{
     try {
-        const userId =req.user.id;
+        const AdminId =req.Admin.id;
 
-        const userData = await User.findById(userId).select('-password');
-        return res.json({data:userData , message:"user profile fetched"});
+        const AdminData = await Admin.findById(AdminId).select('-password');
+        return res.json({data:AdminData , message:"Admin profile fetched"});
     } catch (error) {
         return res.status(error.statusCode ||500).json({message:error.message || "internal server error"})
     }
@@ -83,12 +86,12 @@ export const userProfile = async (req,res,next)=>{
 
 //loggin out
 
-export const userLogout = async (req,res,next)=>{
+export const adminLogout = async (req,res,next)=>{
     try {
         res.clearCookie('token')
 
         
-        return res.json({message:"user loged out"});
+        return res.json({message:"Admin loged out"});
     } catch (error) {
         return res.status(error.statusCode ||500).json({message:error.message || "internal server error"})
     }
