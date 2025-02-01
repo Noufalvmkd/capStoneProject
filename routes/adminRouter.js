@@ -1,5 +1,5 @@
-import express from "express";
-import { adminSignup ,adminLogin ,adminProfile , adminLogout } from "../controllers/adminController.js";
+import express, { Router } from "express";
+import { adminSignup ,adminLogin ,adminProfile ,adminprofileUpdate , adminLogout } from "../controllers/adminController.js";
 import { adminAuth } from "../middlewares/adminAuth.js";
 
 
@@ -15,6 +15,7 @@ router.get('/profile',adminAuth,adminProfile)
 //Logout
 router.put('/logout',adminAuth,adminLogout)
 //profileUpdate
+router.put('/update',adminAuth,adminprofileUpdate)
 //forgot password
 //change password
 //account deactivated

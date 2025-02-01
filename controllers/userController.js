@@ -32,7 +32,8 @@ console.log("hi")
             sameSite: 'strict',
             maxAge: 24 * 60 * 60 * 1000 // 1 day
           });
-        return res.json({data:userData,message:"user account created"})
+          const userWithoutPassword =await User.findById(userData._id).select('-password');
+        return res.json({data:userWithoutPassword,message:"user account created"})
     } catch (error) {
         return res.status(error.statusCode ||500).json({message:error.message || "internal server error"})
     }
@@ -62,7 +63,9 @@ export const userLogin = async (req,res,next)=>{
 
         const token = gentoken(UserExist._id)
         res.cookie("token",token);
-        return res.json({data:UserExist,message:"user login success"})
+
+        const userprofWithoutPswrd =await User.findById(UserExist._id).select('-password');
+        return res.json({data:userprofWithoutPswrd,message:"user login success"})
     } catch (error) {
         return res.status(error.statusCode ||500).json({message:error.message || "internal server error"})
     }
@@ -80,6 +83,43 @@ export const userProfile = async (req,res,next)=>{
         return res.status(error.statusCode ||500).json({message:error.message || "internal server error"})
     }
 }
+
+export const profileUpdate = async (req,res,next)=>{
+    try {
+        const userId =req.user.id;
+        const { name, email, mobile, profilePic, password } = req.body;
+        let user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        if (name) user.name = name;
+        if (email) user.email = email;
+        if (mobile) user.mobile = mobile;
+        if (profilePic) user.profilePic = profilePic;
+
+        // If user wants to update password
+        if (password) {
+            const saltRounds = 10;
+            user.password = bcrypt.hashSync(password, saltRounds);
+        }
+
+        // Save updated user data
+        await user.save();
+
+        // Exclude password from response
+        const updatedUser = user.toObject();
+        delete updatedUser.password;
+
+        return res.json({ data: updatedUser, message: "User profile updated successfully" });
+
+    } catch (error) {
+        return res.status(error.statusCode || 500).json({ message: error.message || "Internal server error" });
+    }
+
+        }
+
+
 
 //loggin out
 

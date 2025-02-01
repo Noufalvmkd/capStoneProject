@@ -32,7 +32,7 @@ console.log(AdminData)
             maxAge: 24 * 60 * 60 * 1000 // 1 day
           });
 
-          const AdminId =req.Admin.id;
+          const AdminId =AdminData._id;
 
         const AdminDataId = await Admin.findById(AdminId).select('-password');
         return res.json({data:AdminDataId,message:"Admin account created"})
@@ -65,7 +65,9 @@ export const adminLogin = async (req,res,next)=>{
 
         const token = gentoken(AdminExist._id)
         res.cookie("token",token);
-        return res.json({data:AdminExist,message:"Admin login success"})
+        
+        const adminDataWithoup = await Admin.findById(AdminExist._id).select('-password')
+        return res.json({data:adminDataWithoup,message:"Admin login success"})
     } catch (error) {
         return res.status(error.statusCode ||500).json({message:error.message || "internal server error"})
     }
@@ -74,8 +76,9 @@ export const adminLogin = async (req,res,next)=>{
 //fetching profile data
 
 export const adminProfile = async (req,res,next)=>{
+    console.log(req.body)
     try {
-        const AdminId =req.Admin.id;
+        const AdminId =req.admin.id;
 
         const AdminData = await Admin.findById(AdminId).select('-password');
         return res.json({data:AdminData , message:"Admin profile fetched"});
@@ -83,6 +86,43 @@ export const adminProfile = async (req,res,next)=>{
         return res.status(error.statusCode ||500).json({message:error.message || "internal server error"})
     }
 }
+// profile update
+export const adminprofileUpdate = async (req,res,next)=>{
+    try {
+        const adminId =req.admin.id;
+        const { name, email, mobile, profilePic, password } = req.body;
+        let admin = await Admin.findById(adminId);
+        if (!admin) {
+            return res.status(404).json({ message: "Admin not found" });
+        }
+
+        if (name) admin.name = name;
+        if (email) admin.email = email;
+        if (mobile) admin.mobile = mobile;
+        if (profilePic) admin.profilePic = profilePic;
+
+        // If admin wants to update password
+        if (password) {
+            const saltRounds = 10;
+            admin.password = bcrypt.hashSync(password, saltRounds);
+        }
+
+        // Save updated admin data
+        await admin.save();
+
+        // Exclude password from response
+        const updatedadmin = admin.toObject();
+        delete updatedadmin.password;
+
+        return res.json({ data: updatedadmin, message: "admin profile updated successfully" });
+
+    } catch (error) {
+        return res.status(error.statusCode || 500).json({ message: error.message || "Internal server error" });
+    }
+
+        }
+
+
 
 //loggin out
 

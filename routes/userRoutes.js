@@ -5,6 +5,7 @@ import { userSignup } from "../controllers/userController.js";
 import { userAuth } from "../middlewares/userAuth.js";
 import { userLogin } from "../controllers/userController.js";
 import { userProfile } from "../controllers/userController.js";
+import { profileUpdate } from "../controllers/userController.js";
 import { userLogout } from "../controllers/userController.js";
 
 const router =express.Router();
@@ -19,6 +20,7 @@ router.get('/profile',userAuth,userProfile)
 //Logout
 router.put('/logout',userAuth,userLogout)
 //profileUpdate
+router.put('/update',userAuth,profileUpdate)
 //forgot password
 //change password
 //account deactivated
