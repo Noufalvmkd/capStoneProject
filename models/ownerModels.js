@@ -20,7 +20,7 @@ const ownerSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    phoneNumber: {
+    mobile: {
       type: String,
       required: true,
     },

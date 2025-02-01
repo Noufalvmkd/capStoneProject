@@ -11,7 +11,7 @@ router.post("/owneradddish",addDishItem)
 router.get("/allorders",getAllOrders)
 
 // update owner
-router.put("/updatdish",updateDishItem)
+router.put("/updatedish",updateDishItem)
 
 // delete owner
 router.delete("/deletedish",deleteDishItem)

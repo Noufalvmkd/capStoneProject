@@ -50,9 +50,9 @@ export const getAllDishes = async (req, res) => {
 
 export const getDishById = async (req, res) => {
   try {
-    const { id } = req.params
+    const dishId = req.params.id
 
-    const dish = await Dish.findById(id).populate("category")
+    const dish = await Dish.findById(dishId).populate("category")
 
     if (!dish) {
       return res.status(404).json({ message: "Dish not found" })

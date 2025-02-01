@@ -8,21 +8,15 @@ export const addDishItem = async (req, res, next) => {
     const { name, description, price, category, imageUrl } = req.body
 
     if (!name || !price || !category) {
-      return res.status(400).json({ message: "Name, price, and category are required" })
+      return res.status(400).json({ message: "minimum reqruire - name ,price, catogory" })
     }
 
-    const dishItem = new Food({
-      name,
-      description,
-      price,
-      category,
-      imageUrl,
-    })
+    const dishItem = new Food({ name, description, price, category, imageUrl });
 
     await dishItem.save();
     res.status(201).json({ message: "Food item added successfully", data: dishItem })
   } catch (error) {
-    res.status(500).json({ message: "Server error", error })
+    res.status(500).json({ message: "internal Server error", error })
   }
 }
 
@@ -95,7 +89,7 @@ export const updateOrderStatus = async (req, res, next) => {
       return res.status(400).json({ message: "Invalid status provided" })
     }
 
-    const order = await Order.findById(id)
+    const order = await order.findById(id)
 
     if (!order) {
       return res.status(404).json({ message: "Order not found" })
