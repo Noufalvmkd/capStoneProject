@@ -1,18 +1,20 @@
 import express from "express";
 const router = express.Router();
 import { addToCart, getCart, updateCartItem,  removeFromCart,} from '../controllers/cartController.js'; 
+import {cartAuth} from '../middlewares/cartAuth.js'
+import { userAuth } from "../middlewares/userAuth.js";
 
 //user cart
-router.get('/cart', addToCart);
+router.post('/addcart',userAuth,addToCart);
 
 // add item
-router.post('/cart',getCart);
+router.get('/getcartitem',userAuth , getCart);
 
 // update item 
-router.put('/cart/:dishId',updateCartItem);
+router.put('/cart/:dishId',userAuth, updateCartItem);
 
 //  remove item 
-router.delete('/cart/:dishId',removeFromCart);
+router.delete('/cart/:dishId',userAuth , removeFromCart);
 
 
 

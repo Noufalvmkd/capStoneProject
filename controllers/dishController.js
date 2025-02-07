@@ -1,20 +1,26 @@
+import { cloudinaryInstance } from "../config/cloudinaryConfig.js";
 import { Dish } from "../models/dishModel.js";
 
 
 export const createDish = async (req, res) => {
   try {
-    const { name, description, price, category, imageUrl } = req.body
+    const { name, description, price, category } = req.body
 
     if (!name || !price || !category) {
       return res.status(400).json({ message: "Name, price, and category are required" })
     }
 
+    console.log("image===", req.file);
+
+    const cloudinaryResponse = await cloudinaryInstance.uploader.upload(req.file.path);
+    console.log(cloudinaryResponse)
+
     const newDish = new Dish({
       name,
       description,
       price,
-      category,
-      imageUrl,
+      category, image: cloudinaryResponse.url
+     
     })
 
     await newDish.save()

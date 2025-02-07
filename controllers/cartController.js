@@ -1,76 +1,88 @@
 
 
 import { Cart } from "../models/cartModel.js";
+import { Dish } from "../models/dishModel.js";
 
 
 export const addToCart = async (req, res) => {
+  console.log("Request Body:", req.body);
   try {
-    const { dishId, quantity } = req.body
-    const userId = req.userId
+    const userId = req.user.id;
+    const { dishId, quantity } = req.body;
+    console.log(dishId , quantity)
+    
+    console.log(userId , "user id s")
 
     if (!dishId || !quantity) {
       return res.status(400).json({ message: "Food ID and quantity are required" })
     }
 
-    const dish = await Food.findById(dishId)
+    const dish = await Dish.findById(dishId)
     if (!dish) {
       return res.status(404).json({ message: "Food item not found" })
     }
 
-    let cart = await Cart.findOne({ userId })
+    let cart = await Cart.findOne({ userId });
 
     if (!cart) {
       cart = new Cart({ userId, items: [] })
     }
-
-    const existingItemIndex = cart.items.findIndex((item) => item.dishId.toString() === dishId)
+//checking dish in cart or not
+    const existingItemIndex = cart.items.findIndex(item => item.foodId.equals(dishId));
 
     if (existingItemIndex !== -1) {
       cart.items[existingItemIndex].quantity += quantity
     } else {
-      cart.items.push({ dishId, quantity })
+      cart.items.push({foodId: dishId, quantity , price:dish.price })
     }
-
+    
     await cart.save();
+    await cart.calculateTotalPrice();
     res.status(200).json({ message: "Item added to cart", cart })
   } catch (error) {
     res.status(500).json({ message: "Server error", error })
+    console.log(error)
   }
 }
 
-export const removeFromCart = async (req, res) => {
+
+export const getCart = async (req, res) => {
   try {
-    const { dishId } = req.body
-    const userId = req.userId 
+    const userId = req.user.id
 
-    
-    if (!dishId) {
-      return res.status(400).json({ message: "Food ID is required" })
-    }
-
-  
-    const cart = await Cart.findOne({ userId })
+    const cart = await Cart.findOne({ userId }).populate("items.foodId", "name price")
     if (!cart) {
       return res.status(404).json({ message: "Cart not found" })
     }
 
+    res.status(200).json({ data: cart , message: "cart fetched successfully" });
+  } catch (error) {
+    console.log("Error in get cart ",error) //log full error
+    res.status(500).json({ message: "internal Server error", error: error.message })
+  }
+};
+
+
+export const removeFromCart = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { dishId } = req.body;
     
-    const initialCartLength = cart.items.length
-    cart.items = cart.items.filter((item) => item.dishId.toString() !== dishId)
+//find the user's cart
+let cartItem = await Cart.findOne({userId});
 
     
-    if (cart.items.length === initialCartLength) {
-      return res.status(404).json({ message: "Item not found in the cart" })
+    if (!cartItem) {
+      return res.status(400).json({ message: "cart not found" })
     }
+    //remove the food item from cart
+    cartItem.dish = cart.dish.filter((item)=> !item.dishId.equals(dishId));
+    //recaliculate the total price
+    cartItem.calculateTotalPrice();
+    await cartItem.save();
 
-   
-    if (cart.items.length === 0) {
-      await Cart.deleteOne({ userId })
-      return res.status(200).json({ message: "Cart is now empty", cart: null })
-    }
-
-   
-    await cart.save()
+  
+    
 
 
     res.status(200).json({ message: "Item removed from cart", cart })
@@ -108,19 +120,4 @@ export const updateCartItem = async (req, res) => {
   }
 };
 
-
-export const getCart = async (req, res) => {
-  try {
-    const userId = req.userId
-
-    const cart = await Cart.findOne({ userId }).populate("items.dishId")
-    if (!cart) {
-      return res.status(404).json({ message: "Cart not found" })
-    }
-
-    res.status(200).json({ cart })
-  } catch (error) {
-    res.status(500).json({ message: "Server error", error })
-  }
-};
 

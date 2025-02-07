@@ -1,4 +1,5 @@
 import express from "express";
+import bodyParser from "express";
 import cookieParser from "cookie-parser";
 import {connectDB } from "./config/db.js";
 import { apiRouter } from "./routes/index.js";//main router
@@ -7,6 +8,7 @@ dotenv.config();
 const app = express();
 app.use(express.json())
 app.use(cookieParser())
+app.use(bodyParser())
 const port = 3000;
 
 connectDB();
